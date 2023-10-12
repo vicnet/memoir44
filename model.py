@@ -74,8 +74,9 @@ class ActionAttack(Action):
             game.players[game.current].medals += 1
 
     def kill(self, aimed):
-        print('killed')
+        #print('killed')
         aimed.kill()
+
 
 class Player:
     class Side(IntEnum):
@@ -108,10 +109,14 @@ class Game:
         action.playOn(self)
 
     def end(self):
+        return self.winner() is not None
+        return False
+
+    def winner(self):
         for player in self.players:
             if player.medals>=1:
-                return True
-        return False
+                return player.side
+        return None
 
     def switch(self):
         """Switch player."""

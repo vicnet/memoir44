@@ -108,25 +108,33 @@ class Sprite:
         canvas.itemconfigure(id, state='hidden')
 
 
-class Units:
-    def __init__(self, sprite):
+class Unit:
+    def __init__(self, sprite, model):
         self.sprite = sprite
         self.size = 4
         self.units = []
+        self.model = model
 
     def draw(self, canvas):
         for _ in range(self.size):
             unit = self.sprite.draw(canvas)
             self.units.append(unit)
 
-    def moveto(self, canvas, x, y):
+    def moveto(self, canvas):
+        x = self.model.position.x
+        y = self.model.position.y
         for pos,unit in enumerate(self.units):
             self.sprite.moveto(canvas, unit, x, y, pos)
 
-    def show(self, canvas, size):
+    def show(self, canvas):
+        size = self.model.figures
         for pos,unit in enumerate(self.units):
             if pos>=size:
                 self.sprite.hide(canvas, unit)
+
+    def update(self, canvas):
+        self.moveto(canvas)
+        self.show(canvas)
 
 
 class App:
@@ -152,8 +160,8 @@ class App:
         #self.can.bind("<Button-1>", self.click)
 
         Sprite.Init(zoom)
-        self.allies = Units(Sprite.ALLY)
-        self.axis = Units(Sprite.AXE)
+        self.allies = Unit(Sprite.ALLY, game.allies.unit)
+        self.axis = Unit(Sprite.AXE, game.axis.unit)
         
         self.draw(self.canvas)
         
@@ -165,12 +173,8 @@ class App:
         self.axis.draw(canvas)
 
     def update(self):
-        unit = self.game.allies.unit
-        self.allies.moveto(self.canvas, unit.position.x, unit.position.y)
-        self.allies.show(self.canvas, unit.figures)
-        unit = self.game.axis.unit
-        self.axis.moveto(self.canvas, unit.position.x, unit.position.y)
-        self.axis.show(self.canvas, unit.figures)
+        self.allies.update(self.canvas)
+        self.axis.update(self.canvas)
 
     def delete_window(self):
         self.root.quit()
@@ -196,6 +200,7 @@ class App:
             #if i.isNeighbour:
                 #self.can.itemconfigure(i.tags, fill="#76d576")
 
+
 class ThreadApp(threading.Thread):
     def __init__(self, game):
         super().__init__()
@@ -218,18 +223,28 @@ class ThreadApp(threading.Thread):
 
 
 if __name__ =='__main__':
-    class Game:
-        pass
-    class Board:
-        width=5
-        height=5
-    game = Game()
-    game.board = Board()
-    thread = False
-    if thread:
-        app = ThreadApp(game)
-        #do what you wnat here
-        app.join();
-    else:
-        app = App(game)
-        app.mainloop()
+    import time
+    
+    from arena import Arena, Callback
+    from players import *
+    
+    class Gui(Callback):
+        def __init__(self):
+            pass
+
+        def start(self, game):
+            self.thread = ThreadApp(game)
+
+        def end(self, game, winner_num, winner_player):
+            print('end turn')
+            self.thread.update()
+            self.thread.join()
+
+        def turn(self, game):
+            self.thread.update()
+            time.sleep(1)
+
+    gui = Gui()
+
+    arena = Arena(gui)
+    arena.play([PlayerAttack(), PlayerRandom()], 1)

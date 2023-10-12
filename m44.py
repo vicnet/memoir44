@@ -1,62 +1,26 @@
 #!/usr/bin/env python3
 
-import random
-
-import model
-import gui
+from arena import Arena, Callback
+from players import *
 
 
-class Player:
-    pass
+class Scores(Callback):
+    def __init__(self):
+        self.scores = [0, 0]
 
-class PlayerAttack(Player):
-    """Always attack"""
-    def play(self, game, actions):
-        return actions[1]
+    def end(self, game, winner_num, winner_player):
+        self.scores[winner_num] += 1
 
-class PlayerRandom(Player):
-    """Always attack"""
-    def play(self, game, actions):
-        return random.choice(actions)
-
-class PlayerPacific(Player):
-    """Always attack"""
-    def play(self, game, actions):
-        return actions[0]
+    def __str__(self):
+        return str(self.scores)
 
 
-game = model.Game()
+scores = Scores()
 
-thread = gui.ThreadApp(game)
+#PlayerAttack()
+#PlayerPacific()
 
-#allies = PlayerAttack()
-allies = PlayerRandom()
-#allies = PlayerPacific()
-axis = PlayerRandom()
+arena = Arena(scores)
+arena.play([PlayerAttack(), PlayerRandom()], 10000)
 
-import time
-print('start game')
-while True:
-    print('start turn')
-    actions = game.actions()
-    if game.current==model.Player.Side.ALLIES:
-        current = allies
-    else:
-        current = axis
-    action = current.play(game, actions)
-    game.play(action)
-    thread.update()
-    if game.end(): break
-    print('end turn')
-    time.sleep(1)
-    game.switch()
-
-print('end game')
-
-#import time
-#time.sleep(1)
-#thread.update()
-
-#print("player 1")
-#action = input()
-thread.join()
+print(scores)
