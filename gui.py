@@ -228,6 +228,11 @@ if __name__ =='__main__':
     from arena import Arena, Callback
     from players import *
     
+    import logging
+    from log import LoggingColor
+
+    LoggingColor.configure(logging.DEBUG)
+    
     class Gui(Callback):
         def __init__(self):
             pass
@@ -235,16 +240,15 @@ if __name__ =='__main__':
         def start(self, game):
             self.thread = ThreadApp(game)
 
-        def end(self, game, winner_num, winner_player):
+        def end(self, game, winner_num=None, winner_player=None):
             print('end turn')
             self.thread.update()
             self.thread.join()
 
         def turn(self, game):
             self.thread.update()
-            time.sleep(1)
+            time.sleep(0.5)
 
     gui = Gui()
-
     arena = Arena(gui)
-    arena.play([PlayerAttack(), PlayerRandom()], 1)
+    arena.play([PlayerTracker(), PlayerAttack()], 1)

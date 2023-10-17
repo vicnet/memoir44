@@ -12,7 +12,9 @@ class Scores(Callback):
         self.scores[winner_num] += 1
 
     def __str__(self):
-        return str(self.scores)
+        total = sum(self.scores)
+        percent = [ int(value/total*100) for value in self.scores ]
+        return f'{self.scores}  ({percent[0]}%/{percent[1]}%)'
 
 
 scores = Scores()
@@ -21,6 +23,6 @@ scores = Scores()
 #PlayerPacific()
 
 arena = Arena(scores)
-arena.play([PlayerAttack(), PlayerRandom()], 10000)
+arena.play([PlayerTracker(), PlayerAttack()], 5000)
 
 print(scores)

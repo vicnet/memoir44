@@ -26,7 +26,6 @@ class Arena:
                 break
             if self.callback is not None:
                 self.callback.turn(game)
-            game.switch()
         winner = game.winner()
         players[winner].win(game)
         oponnent = (winner+1)%2
