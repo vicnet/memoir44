@@ -8,12 +8,12 @@ import logging as log
 
 class Coord:
     class Move:
-        UP_EAST = ((0,-1), (1,-1))
-        UP_WEST = ((-1,-1), (0,-1))
-        EAST = ((1,0), (1,0))
-        WEST = ((-1,0), (-1,0))
-        DOWN_EAST = ((0,1), (1,1))
-        DOWN_WEST = ((-1,1), (0,+1))
+        UP_EAST = ((0,-1), (1,-1),  'Up East')
+        UP_WEST = ((-1,-1), (0,-1), 'Up West')
+        EAST = ((1,0), (1,0),       'East')
+        WEST = ((-1,0), (-1,0),     'West')
+        DOWN_EAST = ((0,1), (1,1),  'Down East')
+        DOWN_WEST = ((-1,1), (0,+1), 'Down West')
 
     def __init__(self, x, y):
         self.x = x
@@ -184,12 +184,12 @@ class ActionMove(Action):
             return False
         other = game.opponent().unit.position
         pos = game.player().unit.position.copy()
+        pos.move(self.direction)
         if other==pos:
             return False
-        pos.move(self.direction)
         return game.board.contains(pos)
     def __str__(self):
-        return f'Move({self.direction})'
+        return f'Move({self.direction[2]})'
 
 Action.Init()
 
@@ -206,7 +206,7 @@ class Player:
         return self.side.name
 
 
-class Phase(Enum):
+class Phase(IntEnum):
     MOVE = 0
     ATTACK = 1
 
@@ -239,14 +239,13 @@ class Game:
 
     def play(self, action):
         action.playOn(self)
-        self.next()
 
     def next(self):
         if self.phase==Phase.MOVE:
             self.phase = Phase.ATTACK
             return
-        self.phase = Phase.MOVE
         self.switch()
+        self.phase = Phase.MOVE
 
     def switch(self):
         """Switch player."""
@@ -254,7 +253,6 @@ class Game:
 
     def end(self):
         return self.winner() is not None
-        return False
 
     def winner(self):
         for player in self.players:
@@ -267,16 +265,6 @@ if __name__ =='__main__':
     from log import LoggingColor
     LoggingColor.configure(log.DEBUG)
     game = Game()
-    game.player().unit.position.moveto(0,0)
-    game.opponent().unit.position.moveto(0,3)
-    Action.ATTACK.playOn(game)
-    log.debug('end')
-    #game.player().unit.position.moveto(0,0)
-    #game.opponent().unit.position.moveto(2,3)
-    #game.opponent().unit.position.moveto(2,3)
-    #actions = game.actions()
-    #game.play(actions[0])
-    #actions = game.actions()
-    #game.play(actions[0])
-    #actions = game.actions()
-    #print(actions)
+    game.player().unit.position.moveto(2,0)
+    game.opponent().unit.position.moveto(0,1)
+    print([str(action) for action in game.actions()])

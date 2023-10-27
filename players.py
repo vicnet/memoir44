@@ -7,10 +7,6 @@ class Player:
     def select(self, game, actions):
         return None
 
-    def play(self, game, actions):
-        action = self.select(game, actions)
-        game.play(action)
-
     def win(self, game):
         self.end(game)
 

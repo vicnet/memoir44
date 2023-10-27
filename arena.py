@@ -1,38 +1,41 @@
 #!/usr/bin/env python3
 
 import model
+from observer import Observer
 
-class Callback:
-    def start(self, game):
-        pass
-    def end(self, game, winner_num, winner_player):
-        pass
-    def turn(self, game):
-        pass
 
 class Arena:
-    def __init__(self, callback=None):
-        self.callback = callback
+    def __init__(self, observer=None):
+        if observer is None:
+            self.observer = Observer
+        else:
+            self.observer = observer
 
     def play_once(self, players):
         game = model.Game()
-        if self.callback is not None:
-            self.callback.start(game)
+        self.observer.start(game)
         while True:
             actions = game.actions()
             current = players[game.current]
-            current.play(game, actions)
+            # play and get last action
+            action = current.select(game, actions)
+            self.observer.selected(game, action)
+            game.play(action)
+            self.observer.played(game)
             if game.end():
                 break
-            if self.callback is not None:
-                self.callback.turn(game)
+            game.next()
+            self.observer.turn(game)
         winner = game.winner()
         players[winner].win(game)
         oponnent = (winner+1)%2
         players[oponnent].loose(game)
-        if self.callback is not None:
-            self.callback.end(game, winner, players[winner])
-    
+        return self.observer.end(game, winner, players[winner])
+
     def play(self, players, nbtime=1):
+        self.observer.start_contest(nbtime)
         for episode in range(nbtime):
-            self.play_once(players)
+            if self.play_once(players):
+                print('Stop earlier')
+                break
+        self.observer.end_contest()

@@ -225,25 +225,30 @@ class ThreadApp(threading.Thread):
 if __name__ =='__main__':
     import time
     
-    from arena import Arena, Callback
+    from arena import Arena
+    from observer import Observer
     from players import *
-    
+    from dqnplayer import DQNPlayer
+
     import logging
     from log import LoggingColor
 
     LoggingColor.configure(logging.DEBUG)
     
-    class Gui(Callback):
+    class Gui(Observer):
         def __init__(self):
-            pass
+            super().__init__()
 
         def start(self, game):
+            super().start(game)
             self.thread = ThreadApp(game)
+            #input()
 
         def end(self, game, winner_num=None, winner_player=None):
             print('end turn')
             self.thread.update()
             self.thread.join()
+            return False
 
         def turn(self, game):
             self.thread.update()
@@ -251,4 +256,8 @@ if __name__ =='__main__':
 
     gui = Gui()
     arena = Arena(gui)
-    arena.play([PlayerTracker(), PlayerAttack()], 1)
+    arena.play([
+        DQNPlayer(),
+        #PlayerRandom()
+        PlayerTracker()
+        ], 1)
