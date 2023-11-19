@@ -258,6 +258,8 @@ if __name__ =='__main__':
     arena = Arena(gui)
     arena.play([
         DQNPlayer(),
-        #PlayerRandom()
-        PlayerTracker()
+        #DQNPlayer(),
+        #PlayerRandom(),
+        PlayerTracker(),
+        #PlayerTracker(),
         ], 1)

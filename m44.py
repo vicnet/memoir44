@@ -23,6 +23,7 @@ arena.play([
     #DQNPlayer(),
     #PlayerRandom(),
     #PlayerRandom(),
-    PlayerTracker()
+    PlayerTracker(),
+    #PlayerTracker(),
     ], count)
 print()
